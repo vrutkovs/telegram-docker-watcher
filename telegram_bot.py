@@ -68,6 +68,19 @@ def start(bot, update):
         bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
 
+def ping(bot, update):
+    if update.message.chat.username != USER:
+        return
+
+    try:
+        message = 'Host {host} reporting in'.format(host=HOST)
+        bot.sendMessage(chat_id=update.message.chat_id, text=message)
+
+    except Exception as e:
+        message = 'Exception ocurred: %r' % e
+        bot.sendMessage(chat_id=update.message.chat_id, text=message)
+
+
 updater = Updater(token=TOKEN)
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.start_polling()
