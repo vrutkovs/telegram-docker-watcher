@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import os
 import logging
 import sys
+import re
 
 from telegram.ext import Updater, CommandHandler
 from ahab import Ahab
@@ -32,6 +33,9 @@ TOKEN = os.environ['TOKEN']
 USER = os.environ['USER']
 HOST = os.environ['HOST']
 
+NAME_REGEX = os.environ.get("NAME_REGEX")
+IMAGE_REGEX = os.environ.get("IMAGE_REGEX")
+
 
 class DockerWatcher(Ahab):
     def set_bot_details(self, bot, chat_id):
@@ -41,14 +45,27 @@ class DockerWatcher(Ahab):
     def handle(self, event, data):
         message_tmpl = 'host {hostname}: {action} "{container}" (id {shortid} image "{image}")'
         if event.get('Action') and event.get('Actor', {}).get('Attributes', {}).get('image'):
+            container_name = event.get('Actor', {}).get('Attributes', {}).get('name')
+            image_name = event.get('Actor', {}).get('Attributes', {}).get('image')
             message = message_tmpl.format(
                 hostname=HOST,
-                container=event.get('Actor', {}).get('Attributes', {}).get('name'),
+                container=container_name,
                 shortid=event.get('Actor', {}).get('ID', '')[:8],
-                image=event.get('Actor', {}).get('Attributes', {}).get('image'),
+                image=image_name,
                 action=event.get('Action', '')
             )
-            self.bot.sendMessage(chat_id=self.chat_id, text=message)
+
+            show_message = True
+            if container_name and NAME_REGEX:
+                if re.match(NAME_REGEX, container_name):
+                    show_message = False
+
+            if image_name and IMAGE_REGEX:
+                if re.match(IMAGE_REGEX, image_name):
+                    show_message = False
+
+            if show_message:
+                self.bot.sendMessage(chat_id=self.chat_id, text=message)
 
 
 def start(bot, update):
