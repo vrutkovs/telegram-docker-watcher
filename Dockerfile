@@ -8,6 +8,6 @@ ADD . /telegram-docker-watcher
 RUN cd /telegram-docker-watcher && \
     pip3 install -r requirements.txt
 
-WORKDIR /reddit-telegram
+WORKDIR /telegram-docker-watcher
 
 CMD ["python3", "telegram_bot.py"]
