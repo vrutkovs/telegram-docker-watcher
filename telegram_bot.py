@@ -6,7 +6,6 @@ from __future__ import unicode_literals
 import os
 import logging
 import sys
-import socket
 
 from telegram.ext import Updater, CommandHandler
 from ahab import Ahab
@@ -26,9 +25,12 @@ if 'TOKEN' not in os.environ:
 if 'USER' not in os.environ:
     raise RuntimeError("Put intended user name in USER env var")
 
+if 'HOST' not in os.environ:
+    raise RuntimeError("Put intended hostname in HOST env var")
+
 TOKEN = os.environ['TOKEN']
 USER = os.environ['USER']
-HOSTNAME = socket.gethostname()
+HOST = os.environ['HOST']
 
 
 class DockerWatcher(Ahab):
@@ -40,7 +42,7 @@ class DockerWatcher(Ahab):
         message_tmpl = 'host {hostname}: {action} "{container}" (id {shortid} image "{image}")'
         if event.get('Action') and event.get('Actor', {}).get('Attributes', {}).get('image'):
             message = message_tmpl.format(
-                hostname=HOSTNAME,
+                hostname=HOST,
                 container=event.get('Actor', {}).get('Attributes', {}).get('name'),
                 shortid=event.get('Actor', {}).get('ID', '')[:8],
                 image=event.get('Actor', {}).get('Attributes', {}).get('image'),
@@ -54,7 +56,7 @@ def start(bot, update):
         return
 
     try:
-        message = 'Bot has started on host {host}'.format(host=HOSTNAME)
+        message = 'Bot has started on host {host}'.format(host=HOST)
         bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
         docker_watcher = DockerWatcher()

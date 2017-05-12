@@ -7,6 +7,7 @@ This script will create a bot, which would report docker events (started and sto
 * Set the following env vars:
   * `TOKEN` - Telegram bot token
   * `USER` - Telegram user name, requests from other users will be ignored
+  * `HOSTNAME` - hostname description
 
 * Run `python3 telegram_bot.py`
 
