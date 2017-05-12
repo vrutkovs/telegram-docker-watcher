@@ -6,7 +6,7 @@ RUN dnf update -y && \
 ADD . /telegram-docker-watcher
 
 RUN cd /telegram-docker-watcher && \
-    pip3 install -r requirements.txt && \
+    pip3 install -r requirements.txt
 
 WORKDIR /reddit-telegram
 
