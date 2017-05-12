@@ -65,6 +65,7 @@ def start(bot, update):
         message = 'Exception ocurred: %r' % e
         bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
+
 updater = Updater(token=TOKEN)
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.start_polling()
