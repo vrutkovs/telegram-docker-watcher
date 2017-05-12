@@ -54,7 +54,7 @@ def start(bot, update):
         return
 
     try:
-        message = 'Bot has started'
+        message = 'Bot has started on host {host}'.format(host=HOSTNAME)
         bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
         docker_watcher = DockerWatcher()
