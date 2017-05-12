@@ -83,4 +83,5 @@ def ping(bot, update):
 
 updater = Updater(token=TOKEN)
 updater.dispatcher.add_handler(CommandHandler('start', start))
+updater.dispatcher.add_handler(CommandHandler('ping', ping))
 updater.start_polling()
