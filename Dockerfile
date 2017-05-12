@@ -1,7 +1,8 @@
 FROM fedora:25
 
 RUN dnf update -y && \
-    dnf install -y python3-pip git
+    dnf install -y python3-pip git && \
+    dnf clean all
 
 ADD . /telegram-docker-watcher
 
