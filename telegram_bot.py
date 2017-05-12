@@ -64,7 +64,7 @@ def start(bot, update):
         docker_watcher.listen()
 
     except Exception as e:
-        message = 'Exception ocurred: %r' % e
+        message = 'Exception occurred: %r' % e
         bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
 
@@ -77,7 +77,7 @@ def ping(bot, update):
         bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
     except Exception as e:
-        message = 'Exception ocurred: %r' % e
+        message = 'Exception occurred: %r' % e
         bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
 
