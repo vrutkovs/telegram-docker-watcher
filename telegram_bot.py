@@ -6,11 +6,11 @@ from __future__ import unicode_literals
 import os
 import logging
 import re
-import threading
 
 from telegram import ChatAction
 from telegram.ext import Updater, CommandHandler
 from ahab import Ahab
+from threading import Thread
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -88,8 +88,9 @@ def start(bot, update):
         return
 
     try:
-        listener_thread = threading.Thread(target=setup_docker_watcher,
-                                           args=(bot, update)).start()
+        listener_thread = Thread(target=setup_docker_watcher,
+                                 args=(bot, update))
+        listener_thread.start()
         message = 'Docker events listener started on host {host}'.format(host=HOST)
         bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
