@@ -5,20 +5,14 @@ from __future__ import unicode_literals
 
 import os
 import logging
-import sys
 import re
 
 from telegram.ext import Updater, CommandHandler
 from ahab import Ahab
 
-log = logging.getLogger('telegram_bot')
-log.setLevel(logging.DEBUG)
-
-ch = logging.StreamHandler(sys.stdout)
-ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-log.addHandler(ch)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 if 'TOKEN' not in os.environ:
     raise RuntimeError("Put bot token in TOKEN env var")
@@ -43,6 +37,7 @@ class DockerWatcher(Ahab):
         self.chat_id = chat_id
 
     def handle(self, event, data):
+        logger.info("docker event {}".format(event))
         message_tmpl = 'host {hostname}: {action} "{container}" (id {shortid} image "{image}")'
         if event.get('Action') and event.get('Actor', {}).get('Attributes', {}).get('image'):
             container_name = event.get('Actor', {}).get('Attributes', {}).get('name')
@@ -69,12 +64,14 @@ class DockerWatcher(Ahab):
 
 
 def setup_docker_watcher(bot, update):
+    logger.info("setup_docker_watcher")
     docker_watcher = DockerWatcher()
     docker_watcher.set_bot_details(bot, update.message.chat_id)
     docker_watcher.listen()
 
 
 def start(bot, update):
+    logger.info("start")
     if update.message.chat.username != USER:
         return
 
@@ -91,6 +88,7 @@ def start(bot, update):
 
 
 def ping(bot, update, args):
+    logger.info("ping args={}".format(args))
     if update.message.chat.username != USER:
         return
 
