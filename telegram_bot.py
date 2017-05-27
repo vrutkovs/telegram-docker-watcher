@@ -78,18 +78,16 @@ def start(bot, update):
     if update.message.chat.username != USER:
         return
 
-    try:
-        message = 'Bot has started on host {host}'.format(host=HOST)
-        bot.sendMessage(chat_id=update.message.chat_id, text=message)
+    while True:
+        try:
+            message = 'Bot has started on host {host}'.format(host=HOST)
+            bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
-        setup_docker_watcher(bot, update)
+            setup_docker_watcher(bot, update)
 
-    except Exception as e:
-        message = 'Exception occurred: %r' % e
-        bot.sendMessage(chat_id=update.message.chat_id, text=message)
-
-        # Restart a watcher
-        setup_docker_watcher(bot, update)
+        except Exception as e:
+            message = 'Exception occurred: %r' % e
+            bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
 
 def ping(bot, update, args):
