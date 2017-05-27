@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import os
 import logging
 import re
+import threading
 
 from telegram.ext import Updater, CommandHandler
 from ahab import Ahab
@@ -72,7 +73,7 @@ def setup_docker_watcher(bot, update):
 
 def start(bot, update):
     logger.info("start")
-    if update.message.chat.username != USER:
+    if update.message.from_user.username != USER:
         return
 
     while True:
@@ -80,7 +81,8 @@ def start(bot, update):
             message = 'Bot has started on host {host}'.format(host=HOST)
             bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
-            setup_docker_watcher(bot, update)
+            threading.Thread(target=setup_docker_watcher,
+                             args=(bot, update)).start()
 
         except Exception as e:
             message = 'Exception occurred: %r' % e
@@ -89,7 +91,7 @@ def start(bot, update):
 
 def ping(bot, update, args):
     logger.info("ping args={}".format(args))
-    if update.message.chat.username != USER:
+    if update.message.from_user.username != USER:
         return
 
     if HOST not in args:
