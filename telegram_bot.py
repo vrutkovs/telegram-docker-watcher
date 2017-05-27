@@ -15,6 +15,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+listener_thread = None
+
 if 'TOKEN' not in os.environ:
     raise RuntimeError("Put bot token in TOKEN env var")
 
@@ -72,21 +74,26 @@ def setup_docker_watcher(bot, update):
 
 
 def start(bot, update):
+    global listener_thread
     logger.info("start")
     if update.message.from_user.username != USER:
         return
 
-    while True:
-        try:
-            message = 'Bot has started on host {host}'.format(host=HOST)
-            bot.sendMessage(chat_id=update.message.chat_id, text=message)
+    if listener_thread:
+        message = 'Listener has already started on host {host}'.format(host=HOST)
+        bot.sendMessage(chat_id=update.message.chat_id, text=message)
+        return
 
-            threading.Thread(target=setup_docker_watcher,
-                             args=(bot, update)).start()
+    try:
+        message = 'Bot has started on host {host}'.format(host=HOST)
+        bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
-        except Exception as e:
-            message = 'Exception occurred: %r' % e
-            bot.sendMessage(chat_id=update.message.chat_id, text=message)
+        listener_thread = threading.Thread(target=setup_docker_watcher,
+                                           args=(bot, update)).start()
+
+    except Exception as e:
+        message = 'Exception occurred: %r' % e
+        bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
 
 def ping(bot, update, args):
