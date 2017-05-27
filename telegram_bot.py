@@ -68,6 +68,12 @@ class DockerWatcher(Ahab):
                 self.bot.sendMessage(chat_id=self.chat_id, text=message)
 
 
+def setup_docker_watcher(bot, update):
+    docker_watcher = DockerWatcher()
+    docker_watcher.set_bot_details(bot, update.message.chat_id)
+    docker_watcher.listen()
+
+
 def start(bot, update):
     if update.message.chat.username != USER:
         return
@@ -76,13 +82,14 @@ def start(bot, update):
         message = 'Bot has started on host {host}'.format(host=HOST)
         bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
-        docker_watcher = DockerWatcher()
-        docker_watcher.set_bot_details(bot, update.message.chat_id)
-        docker_watcher.listen()
+        setup_docker_watcher(bot, update)
 
     except Exception as e:
         message = 'Exception occurred: %r' % e
         bot.sendMessage(chat_id=update.message.chat_id, text=message)
+
+        # Restart a watcher
+        setup_docker_watcher(bot, update)
 
 
 def ping(bot, update, args):
