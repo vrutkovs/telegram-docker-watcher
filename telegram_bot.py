@@ -108,7 +108,7 @@ def cmd_list(bot, update):
     container_lines = []
     for x in docker_client.containers():
         line = '{name} - {status}'.format(
-            name=x['Names'][0],
+            name=x['Names'][0][1:],
             status=x['Status']
         )
         container_lines.append(line)
