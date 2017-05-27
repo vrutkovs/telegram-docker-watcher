@@ -11,12 +11,11 @@ from telegram import ChatAction
 from telegram.ext import Updater, CommandHandler
 from ahab import Ahab
 from threading import Thread
+from docker import Client
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-listener_thread = None
 
 if 'TOKEN' not in os.environ:
     raise RuntimeError("Put bot token in TOKEN env var")
@@ -33,6 +32,9 @@ HOST = os.environ['HOST']
 
 NAME_REGEX = os.environ.get("NAME_REGEX")
 IMAGE_REGEX = os.environ.get("IMAGE_REGEX")
+
+listener_thread = None
+docker_client = Client(base_url='unix://var/run/docker.sock')
 
 
 class DockerWatcher(Ahab):
@@ -74,7 +76,7 @@ def setup_docker_watcher(bot, update):
     docker_watcher.listen()
 
 
-def start(bot, update):
+def cmd_start(bot, update):
     global listener_thread
     bot.sendChatAction(chat_id=update.message.chat_id,
                        action=ChatAction.TYPING)
@@ -99,7 +101,22 @@ def start(bot, update):
         bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
 
-def ping(bot, update, args):
+def cmd_list(bot, update):
+    global docker_client
+    logger.info("list")
+
+    container_lines = []
+    for x in docker_client.containers():
+        line = '{name} - {status}'.format(
+            name=x['Names'][0],
+            status=x['Status']
+        )
+        container_lines.append(line)
+    message = 'My containers: {}'.format('\n'.join(container_lines))
+    bot.sendMessage(chat_id=update.message.chat_id, text=message)
+
+
+def cmd_ping(bot, update, args):
     logger.info("ping args={}".format(args))
     if update.message.from_user.username != USER:
         return
@@ -114,6 +131,7 @@ def ping(bot, update, args):
 
 
 updater = Updater(token=TOKEN)
-updater.dispatcher.add_handler(CommandHandler('start', start))
-updater.dispatcher.add_handler(CommandHandler('ping', ping, pass_args=True))
+updater.dispatcher.add_handler(CommandHandler('start', cmd_start))
+updater.dispatcher.add_handler(CommandHandler('ping', cmd_ping, pass_args=True))
+updater.dispatcher.add_handler(CommandHandler('list', cmd_list))
 updater.start_polling()
