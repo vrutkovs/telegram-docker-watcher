@@ -8,6 +8,7 @@ import logging
 import re
 import threading
 
+from telegram import ChatAction
 from telegram.ext import Updater, CommandHandler
 from ahab import Ahab
 
@@ -85,11 +86,12 @@ def start(bot, update):
         return
 
     try:
-        message = 'Bot has started on host {host}'.format(host=HOST)
-        bot.sendMessage(chat_id=update.message.chat_id, text=message)
-
+        bot.sendChatAction(chat_id=update.message.chat_id,
+                           action=ChatAction.TYPING)
         listener_thread = threading.Thread(target=setup_docker_watcher,
                                            args=(bot, update)).start()
+        message = 'Docker events listener started on host {host}'.format(host=HOST)
+        bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
     except Exception as e:
         message = 'Exception occurred: %r' % e
