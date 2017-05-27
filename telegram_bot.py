@@ -85,8 +85,11 @@ def start(bot, update):
         bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
 
-def ping(bot, update):
+def ping(bot, update, args):
     if update.message.chat.username != USER:
+        return
+
+    if HOST not in args:
         return
 
     try:
@@ -100,5 +103,5 @@ def ping(bot, update):
 
 updater = Updater(token=TOKEN)
 updater.dispatcher.add_handler(CommandHandler('start', start))
-updater.dispatcher.add_handler(CommandHandler('ping', ping))
+updater.dispatcher.add_handler(CommandHandler('ping', ping, pass_args=True))
 updater.start_polling()
