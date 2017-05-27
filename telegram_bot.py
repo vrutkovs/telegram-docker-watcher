@@ -76,6 +76,8 @@ def setup_docker_watcher(bot, update):
 
 def start(bot, update):
     global listener_thread
+    bot.sendChatAction(chat_id=update.message.chat_id,
+                       action=ChatAction.TYPING)
     logger.info("start")
     if update.message.from_user.username != USER:
         return
@@ -86,8 +88,6 @@ def start(bot, update):
         return
 
     try:
-        bot.sendChatAction(chat_id=update.message.chat_id,
-                           action=ChatAction.TYPING)
         listener_thread = threading.Thread(target=setup_docker_watcher,
                                            args=(bot, update)).start()
         message = 'Docker events listener started on host {host}'.format(host=HOST)
