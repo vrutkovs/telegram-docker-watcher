@@ -101,9 +101,6 @@ def ping(bot, update, args):
     if update.message.from_user.username != USER:
         return
 
-    if HOST not in args:
-        return
-
     try:
         message = 'Host {host} reporting in'.format(host=HOST)
         bot.sendMessage(chat_id=update.message.chat_id, text=message)
