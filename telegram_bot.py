@@ -112,7 +112,7 @@ def cmd_list(bot, update):
             status=x['Status']
         )
         container_lines.append(line)
-    message = 'My containers: {}'.format('\n'.join(container_lines))
+    message = 'My containers:\n\n{}'.format('\n'.join(container_lines))
     bot.sendMessage(chat_id=update.message.chat_id, text=message)
 
 
